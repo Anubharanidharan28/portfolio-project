@@ -11,7 +11,7 @@ pipeline {
 
         stage('Clone Repo') {
             steps {
-                git branch: 'main', url: 'https://github.com/anubharanidharanm-source/demo-portfolio-website.git'
+                git branch: 'main', url: 'https://github.com/Anubharanidharan28/portfolio-project.git'
             }
         }
 
@@ -27,7 +27,7 @@ pipeline {
                             ${scannerHome}/bin/sonar-scanner \
                                 -Dsonar.projectKey=portfolio-website \
                                 -Dsonar.sources=. \
-                                -Dsonar.host.url=http://34.100.253.85:9000 \
+                                -Dsonar.host.url=http://34.14.154.234:9000\
                                 -Dsonar.login=$SONAR_TOKEN
                             """
                         }
