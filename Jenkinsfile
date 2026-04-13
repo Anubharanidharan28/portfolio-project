@@ -35,6 +35,19 @@ pipeline {
                 }
             }
         }
+        stage('Prepare Reports') {
+            steps {
+                sh 'mkdir -p reports'
+            }
+        }
+
+        stage('Code Quality Check') {
+            steps {
+                sh '''
+                htmlhint index.html > reports/html-report.txt || true
+                '''
+            }
+        }
 
         stage('Build Docker Image') {
             steps {
@@ -44,6 +57,56 @@ pipeline {
                 docker tag $IMAGE_NAME:$IMAGE_TAG $GCP_ARTIFACT_IMAGE_NAME:$IMAGE_TAG
                 docker tag $IMAGE_NAME:$IMAGE_TAG $GCP_ARTIFACT_IMAGE_NAME:latest
                 """
+            }
+        }
+stage('Docker Security Scan') {
+            steps {
+                sh '''
+                trivy image --format json -o reports/trivy-report.json $IMAGE_NAME:$IMAGE_TAG
+                trivy image --severity HIGH,CRITICAL $IMAGE_NAME:$IMAGE_TAG > reports/trivy-summary.txt || true
+                '''
+            }
+        }
+
+        stage('Test Container') {
+            steps {
+                sh '''
+                docker run -d -p 8085:80 --name test-container $IMAGE_NAME:$IMAGE_TAG
+                sleep 10
+                curl -I http://localhost:8085 > reports/container-test.txt || true
+                docker rm -f test-container
+                '''
+            }
+        }
+
+        stage('Generate DevSecOps Report') {
+            steps {
+                sh '''
+                echo "===============================" > reports/devsecops-report.txt
+                echo " DEVSECOPS PIPELINE REPORT" >> reports/devsecops-report.txt
+                echo "===============================" >> reports/devsecops-report.txt
+                echo "" >> reports/devsecops-report.txt
+                echo "BUILD NUMBER: $BUILD_NUMBER" >> reports/devsecops-report.txt
+                echo "DATE: $(date)" >> reports/devsecops-report.txt
+
+                echo "" >> reports/devsecops-report.txt
+                echo "----- CODE QUALITY CHECK (HTMLHint) -----" >> reports/devsecops-report.txt
+                cat reports/html-report.txt >> reports/devsecops-report.txt
+
+                echo "" >> reports/devsecops-report.txt
+                echo "----- DOCKER SECURITY SCAN (Trivy) -----" >> reports/devsecops-report.txt
+                cat reports/trivy-summary.txt >> reports/devsecops-report.txt
+
+                echo "" >> reports/devsecops-report.txt
+                echo "----- CONTAINER TEST -----" >> reports/devsecops-report.txt
+                cat reports/container-test.txt >> reports/devsecops-report.txt
+                '''
+            }
+        }
+
+        stage('Archive Reports') {
+            steps {
+                archiveArtifacts artifacts: 'reports/*', fingerprint: true
             }
         }
 
