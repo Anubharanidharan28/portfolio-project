@@ -138,37 +138,36 @@ pipeline {
             }
         }
 
-        stage('Update GitOps Repo') {
-            steps {
-                withCredentials([
-                    usernamePassword(
-                        credentialsId: 'github-creds',
-                        usernameVariable: 'GIT_USER',
-                        passwordVariable: 'GIT_PASS'
-                    )
-                ]) {
-                                sh '''
-                    REPO_URL="https://${GIT_USER}:${GIT_PASS}@github.com/Anubharanidharan28/Gitops-argoCD-repo.git"
+    stage('Update GitOps Repo') {
+    steps {
+        withCredentials([
+            usernamePassword(
+                credentialsId: 'github-creds',
+                usernameVariable: 'GIT_USER',
+                passwordVariable: 'GIT_PASS'
+            )
+        ]) {
+            sh '''
+                rm -rf gitops-repo
 
-                    rm -rf gitops-repo
+                git clone https://${GIT_USER}:${GIT_PASS}@github.com/Anubharanidharan28/Gitops-argoCD-repo.git gitops-repo
 
-                    git clone "$REPO_URL" gitops-repo
+                cd gitops-repo
 
-                    cd gitops-repo
+                sed -i "s|image: .*|image: '"$GCP_ARTIFACT_IMAGE_NAME:$IMAGE_TAG"'|g" deployment-portfolio.yaml
 
-                    sed -i '/image:/c\\          image: '"$GCP_ARTIFACT_IMAGE_NAME:$IMAGE_TAG"'' deployment-portfolio.yaml
+                git config user.email "anubharanidharan28@gmail.com"
+                git config user.name "Anubharanidharan M"
 
-                    git config user.email "anubharanidharan28@gmail.com"
-                    git config user.name "Anubharanidharan M"
+                git add deployment-portfolio.yaml
 
-                    git add .
-                    git commit -m "Update image to version $IMAGE_TAG" || echo "No changes to commit"
+                git commit -m "Update image to version ${IMAGE_TAG}" || echo "No changes to commit"
 
-                    git push origin main
-                    '''
-                }
-            }
+                git push origin main
+            '''
         }
+    }
+}
         }
 
     }
