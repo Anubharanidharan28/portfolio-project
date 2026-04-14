@@ -148,7 +148,7 @@ pipeline {
 
                 cd gitops-repo
                 
-                sed -i '/image:/c\          image: '"$GCP_ARTIFACT_IMAGE_NAME:$IMAGE_TAG"'' deployment-portfolio.yaml   
+                sed -i "s|image: .*|image: $GCP_ARTIFACT_IMAGE_NAME:$IMAGE_TAG|g" deployment-portfolio.yaml
                 git config user.email "anubharanidharan28@gmail.com"
                 git config user.name "Anubharanidharan M"
 
