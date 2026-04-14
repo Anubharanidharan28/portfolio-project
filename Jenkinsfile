@@ -148,21 +148,21 @@ pipeline {
                     )
                 ]) {
                     sh '''
-                        rm -rf gitops-repo
+                    rm -rf gitops-repo
 
-                        git clone https://${GIT_USER}:${GIT_PASS}@github.com/Anubharanidharan28/Gitops-argoCD-repo.git gitops-repo
+                    git clone "https://${GIT_USER}:${GIT_PASS}@github.com/Anubharanidharan28/Gitops-argoCD-repo.git" gitops-repo
 
-                        cd gitops-repo
+                    cd gitops-repo
 
-                        sed -i '/image:/c\\          image: '"$GCP_ARTIFACT_IMAGE_NAME:$IMAGE_TAG"'' deployment-portfolio.yaml
+                    sed -i '/image:/c\\          image: '"$GCP_ARTIFACT_IMAGE_NAME:$IMAGE_TAG"'' deployment-portfolio.yaml
 
-                        git config user.email "anubharanidharan28@gmail.com"
-                        git config user.name "Anubharanidharan M"
+                    git config user.email "anubharanidharan28@gmail.com"
+                    git config user.name "Anubharanidharan M"
 
-                        git add .
-                        git commit -m "Update image to version $IMAGE_TAG" || echo "No changes to commit"
+                    git add .
+                    git commit -m "Update image to version $IMAGE_TAG" || echo "No changes to commit"
 
-                        git push origin main
+                    git push origin main
                     '''
                 }
             }
