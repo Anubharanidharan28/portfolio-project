@@ -35,15 +35,11 @@ pipeline {
                 }
             }
         }
-        stage('Prepare Reports') {
-            steps {
-                sh 'mkdir -p reports'
-            }
-        }
 
         stage('Code Quality Check') {
             steps {
                 sh '''
+                mkdir -p reports
                 htmlhint index.html > reports/html-report.txt || true
                 '''
             }
@@ -59,14 +55,14 @@ pipeline {
                 """
             }
         }
-stage('Docker Security Scan') {
+        stage('Docker Security Scan') {
             steps {
                 sh '''
                 trivy image --format json -o reports/trivy-report.json $IMAGE_NAME:$IMAGE_TAG
                 trivy image --severity HIGH,CRITICAL $IMAGE_NAME:$IMAGE_TAG > reports/trivy-summary.txt || true
-                '''
-            }
-        }
+                        '''
+                   }
+                }
 
         stage('Test Container') {
             steps {
@@ -142,15 +138,6 @@ stage('Docker Security Scan') {
             }
         }
 
-
-        stage('Run Container') {
-            steps {
-                sh """
-                docker rm -f portfolio-container || true
-                docker run -d -p 8091:80 --name portfolio-container $IMAGE_NAME:$IMAGE_TAG
-                """
-            }
-        }
         stage('Update GitOps Repo') {
             steps {
             withCredentials([usernamePassword(credentialsId: 'github-creds', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_PASS')]) {
@@ -160,8 +147,8 @@ stage('Docker Security Scan') {
                 git clone https://${GIT_USER}:${GIT_PASS}@github.com/Anubharanidharan28/Gitops-argoCD-repo.git gitops-repo
 
                 cd gitops-repo
-                sed -i "s|image: .*|image: $GCP_ARTIFACT_IMAGE_NAME:$IMAGE_TAG|g" deployment-portfolio.yaml
-
+                
+                sed -i '/image:/c\          image: '"$GCP_ARTIFACT_IMAGE_NAME:$IMAGE_TAG"'' deployment-portfolio.yaml   
                 git config user.email "anubharanidharan28@gmail.com"
                 git config user.name "Anubharanidharan M"
 
@@ -175,4 +162,3 @@ stage('Docker Security Scan') {
         }
 
     }
-}

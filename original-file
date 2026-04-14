@@ -164,3 +164,5 @@ pipeline {
 
     }
 }
+
+//sed -i "s|image: .*|image: $GCP_ARTIFACT_IMAGE_NAME:$IMAGE_TAG|g" deployment-portfolio.yaml
