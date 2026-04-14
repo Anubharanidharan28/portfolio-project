@@ -147,10 +147,12 @@ pipeline {
                         passwordVariable: 'GIT_PASS'
                     )
                 ]) {
-                    sh '''
+                                sh '''
+                    REPO_URL="https://${GIT_USER}:${GIT_PASS}@github.com/Anubharanidharan28/Gitops-argoCD-repo.git"
+
                     rm -rf gitops-repo
 
-                    git clone "https://${GIT_USER}:${GIT_PASS}@github.com/Anubharanidharan28/Gitops-argoCD-repo.git" gitops-repo
+                    git clone "$REPO_URL" gitops-repo
 
                     cd gitops-repo
 
