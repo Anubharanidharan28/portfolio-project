@@ -147,27 +147,73 @@ pipeline {
                 passwordVariable: 'GIT_PASS'
             )
         ]) {
-            sh '''
-                rm -rf gitops-repo
+                sh '''
+                    rm -rf gitops-repo
 
-                git clone https://${GIT_USER}:${GIT_PASS}@github.com/Anubharanidharan28/Gitops-argoCD-repo.git gitops-repo
+                    git clone https://${GIT_USER}:${GIT_PASS}@github.com/Anubharanidharan28/Gitops-argoCD-repo.git gitops-repo
 
-                cd gitops-repo
+                    cd gitops-repo
 
-                sed -i "s|image: .*|image: '"$GCP_ARTIFACT_IMAGE_NAME:$IMAGE_TAG"'|g" deployment-portfolio.yaml
+                    sed -i "s|image: .*|image: '"$GCP_ARTIFACT_IMAGE_NAME:$IMAGE_TAG"'|g" deployment-portfolio.yaml
 
-                git config user.email "anubharanidharan28@gmail.com"
-                git config user.name "Anubharanidharan M"
+                    git config user.email "anubharanidharan28@gmail.com"
+                    git config user.name "Anubharanidharan M"
 
-                git add deployment-portfolio.yaml
+                    git add deployment-portfolio.yaml
 
-                git commit -m "Update image to version ${IMAGE_TAG}" || echo "No changes to commit"
+                    git commit -m "Update image to version ${IMAGE_TAG}" || echo "No changes to commit"
 
-                git push origin main
-            '''
+                    git push origin main
+                '''
+            }
         }
     }
-}
+        }
+
+        post {
+            success {
+                emailext (
+                    subject: "SUCCESS: Jenkins Build #${BUILD_NUMBER} - ${JOB_NAME}",
+                    body: """
+        Hello,
+
+        Your Jenkins pipeline completed SUCCESSFULLY.
+
+        Job Name: ${JOB_NAME}
+        Build Number: ${BUILD_NUMBER}
+        Build URL: ${BUILD_URL}
+
+        Status: SUCCESS
+
+        Regards,
+        Jenkins
+        """,
+                    to: 'your-email@example.com'
+                )
+            }
+
+            failure {
+                emailext (
+                    subject: "FAILED: Jenkins Build #${BUILD_NUMBER} - ${JOB_NAME}",
+                    body: """
+        Hello,
+
+        Your Jenkins pipeline FAILED.
+
+        Job Name: ${JOB_NAME}
+        Build Number: ${BUILD_NUMBER}
+        Build URL: ${BUILD_URL}
+
+        Status: FAILURE
+
+        Please check Jenkins logs.
+
+        Regards,
+        Jenkins
+        """,
+                    to: 'your-email@example.com'
+                )
+            }
         }
 
     }
