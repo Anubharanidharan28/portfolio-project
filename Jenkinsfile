@@ -168,52 +168,6 @@ pipeline {
             }
         }
     }
-        }
-
-        post {
-            success {
-                emailext (
-                    subject: "SUCCESS: Jenkins Build #${BUILD_NUMBER} - ${JOB_NAME}",
-                    body: """
-        Hello,
-
-        Your Jenkins pipeline completed SUCCESSFULLY.
-
-        Job Name: ${JOB_NAME}
-        Build Number: ${BUILD_NUMBER}
-        Build URL: ${BUILD_URL}
-
-        Status: SUCCESS
-
-        Regards,
-        Jenkins
-        """,
-                    to: 'anubharanidharan28@gmail.com'
-                )
-            }
-
-            failure {
-                emailext (
-                    subject: "FAILED: Jenkins Build #${BUILD_NUMBER} - ${JOB_NAME}",
-                    body: """
-        Hello,
-
-        Your Jenkins pipeline FAILED.
-
-        Job Name: ${JOB_NAME}
-        Build Number: ${BUILD_NUMBER}
-        Build URL: ${BUILD_URL}
-
-        Status: FAILURE
-
-        Please check Jenkins logs.
-
-        Regards,
-        Jenkins
-        """,
-                    to: 'anubharanidharan28@gmail.com'
-                )
-            }
-        }
-
     }
+
+}
