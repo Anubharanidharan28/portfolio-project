@@ -188,7 +188,7 @@ pipeline {
         Regards,
         Jenkins
         """,
-                    to: 'anubharanidharan.m@econz.net'
+                    to: 'anubharanidharan28@gmail.com'
                 )
             }
 
@@ -211,7 +211,7 @@ pipeline {
         Regards,
         Jenkins
         """,
-                    to: 'anubharanidharan.m@econz.net'
+                    to: 'anubharanidharan28@gmail.com'
                 )
             }
         }
