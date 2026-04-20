@@ -1,5 +1,5 @@
 pipeline {
-    agent any
+    agent { label 'GCP-Jenkins-Agent' }
 
     stages {
         stage('Webhook Test') {
